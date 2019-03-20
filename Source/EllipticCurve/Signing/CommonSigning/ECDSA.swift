@@ -65,4 +65,29 @@ public extension ECDSA {
 
         return true
     }
+    
+    static func getRecoveryId(_ message: Message, wasSignedBy r: Number?, s: Number?, publicKey: PublicKey<Curve>) -> Int {
+        guard publicKey.point.isOnCurve(), let r = r, let s = s else { return 0}
+        let z: NumberConvertible = message//.asData().toNumber()
+        
+        let H = publicKey.point
+        
+        let sInverse = Curve.modInverseN(Number(1), s)
+        
+        let u1 = Curve.modN { sInverse * z }
+        let u2 = Curve.modN { sInverse * r }
+        
+        guard
+            let R = Curve.addition(Curve.G * u1, H * u2),
+            case let verification = Curve.modN({ R.x }),
+            verification == r
+            else { return 0 }
+        let recoveryId: Int = {
+            let oddY = R.y % 2 == 0 ? 0 : 1
+            let overflow = R.x > Secp256r1.N ? 2 : 0 //- however we declare the upper two possibilities, representing infinite values, invalid.
+            var recoveryBit = oddY | overflow
+            return recoveryBit + 27
+        }()
+        return recoveryId
+    }
 }
