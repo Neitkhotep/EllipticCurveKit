@@ -11,6 +11,7 @@ Pod::Spec.new do |s|
     s.source       = { :git => 'https://github.com/Sajjon/EllipticCurveKit.git', :tag => String(s.version) }
     s.source_files = 'Source/**/*.swift'
     s.social_media_url = 'https://twitter.com/alexcyon'
-    s.dependency 'BigNumber', '~> 2.0'
+    s.dependency 'UInt256', '~> 3.1'
+    s.dependency 'BigInt'
     s.dependency 'CryptoSwift', '~> 0.12'
 end
